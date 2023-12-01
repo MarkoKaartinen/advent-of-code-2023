@@ -23,9 +23,15 @@ zoneight234
     $this->assertEquals(281, $day->part2());
 });
 
-test('Part 2 with extra info', function () {
+test('Extra 1', function () {
     $input = 'eighthree
 sevenine';
     $day = new Day1(collect(Str::of($input)->explode("\n")));
     $this->assertEquals(162, $day->part2());
+});
+
+test('Extra 2', function(){
+    $input = 'abcone2threexyz';
+    $day = new Day1(collect(Str::of($input)->explode("\n")));
+    $this->assertEquals(13, $day->part2());
 });

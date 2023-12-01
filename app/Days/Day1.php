@@ -29,7 +29,8 @@ class Day1 implements DayInterface
     {
         $sum = 0;
         foreach ($this->values as $value) {
-            $sum = $sum + $this->getValueFromString($value, true);
+            $valuesFrom = $this->getValueFromString($value, true);
+            $sum = $sum + $valuesFrom;
         }
 
         return $sum;
@@ -38,34 +39,65 @@ class Day1 implements DayInterface
     private function getValueFromString($string, $convertLetters = false): int
     {
         if ($convertLetters) {
-            $string = $this->convertLettersToNumbers($string);
+            return $this->getValueWithLettersConverted($string);
         }
+
         $numbers = str($string)->matchAll('/[0-9]/');
 
         return (int) ($numbers->first() . $numbers->last());
     }
 
-    private function convertLettersToNumbers($string): string
+    private function getValueWithLettersConverted($string): string
+    {
+        $firstNumber = $this->getLastOrFirstNumber($string);
+        $lastNumber = $this->getLastOrFirstNumber($string, false);
+
+        return (int) ($firstNumber . $lastNumber);
+    }
+
+    private function getLastOrFirstNumber($string, $first = true): int
     {
         $lettersToNumbers = collect([
-            'one' => '1e',
-            'two' => '2o',
-            'three' => '3e',
-            'four' => '4r',
-            'five' => '5e',
-            'six' => '6x',
-            'seven' => '7n',
-            'eight' => '8t',
-            'nine' => '9e',
+            'one' => 1,
+            'two' => 2,
+            'three' => 3,
+            'four' => 4,
+            'five' => 5,
+            'six' => 6,
+            'seven' => 7,
+            'eight' => 8,
+            'nine' => 9,
         ]);
-        $convertedString = '';
+
+        $regexp = '/one|two|three|four|five|six|seven|eight|nine/';
 
         $parts = str_split($string);
-        foreach ($parts as $part) {
-            $convertedString .= $part;
-            $convertedString = str($convertedString)->replace($lettersToNumbers->keys(), $lettersToNumbers->values());
+        $number = 0;
+
+        if (! $first) {
+            $parts = array_reverse($parts);
         }
 
-        return $convertedString;
+        $numberString = '';
+        foreach ($parts as $part) {
+            if ($first) {
+                $numberString .= $part;
+            } else {
+                $numberString = $part . $numberString;
+            }
+
+            if (is_numeric($part)) {
+                $number = $part;
+                break;
+            } else {
+                if (str($numberString)->isMatch($regexp)) {
+                    $match = str($numberString)->match($regexp)->toString();
+                    $number = $lettersToNumbers->only($match)->first();
+                    break;
+                }
+            }
+        }
+
+        return (int) $number;
     }
 }
